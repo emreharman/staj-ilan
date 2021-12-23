@@ -4,19 +4,17 @@ import SingleIlan from "./SingleIlan";
 
 import { db } from "../db/firestore3";
 
-const Listilans = () => {
+const Listilans = ({ refreshList }) => {
   const [ilans, setIlans] = useState([]);
 
   useEffect(() => {
-    console.log("****************************************");
     getIlans(db);
-  }, []);
+  }, [refreshList]);
   const getIlans = async (db) => {
     let arr = [];
     const response = db.collection("ilans");
     const data = await response.get();
     data.docs.forEach((item) => {
-      console.log(item.data());
       arr.push(item.data());
       // setIlans([...ilans, item.data()]);
     });
@@ -33,7 +31,7 @@ const Listilans = () => {
   };
 
   if (ilans.length === 0) return null;
-  console.log(ilans);
+  //console.log(ilans);
 
   return (
     <View style={styles.container}>
