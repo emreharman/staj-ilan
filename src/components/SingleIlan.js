@@ -1,10 +1,53 @@
 import React, { useState } from "react";
-import { StyleSheet, View, Text, Pressable } from "react-native";
+import { StyleSheet, View, Text, Pressable, Linking } from "react-native";
 import Colors from "../utils/Colors";
-import { auth } from "../db/firestore3";
+import { auth, db } from "../db/firestore3";
+import { MainContext, useContext } from "../context";
 
 const SingleIlan = ({ ilan }) => {
   const [readMore, setReadMore] = useState(false);
+  const { yenile, setYenile } = useContext(MainContext);
+
+  const handleBasvur = async () => {
+    const bas = ilan.basvuranlar;
+    bas.push(auth.currentUser.email);
+    const updatedIlan = {
+      ...ilan,
+      basvuranlar: bas,
+    };
+    db.collection("ilans")
+      .get()
+      .then((snap) => {
+        snap.forEach(function (doc) {
+          //console.log(doc.id, " => ", doc.data());
+          if (
+            doc.data().sirket === ilan.sirket &&
+            doc.data().pozisyon === ilan.pozisyon &&
+            doc.data().ilanSahibi === ilan.ilanSahibi &&
+            doc.data().aciklama === ilan.aciklama
+          ) {
+            console.log(doc.id);
+            db.collection("ilans")
+              .doc(doc.id)
+              .update(updatedIlan)
+              .then(() => {
+                setYenile(!yenile);
+                Linking.openURL(
+                  `mailto:${
+                    ilan.ilanSahibi
+                  }?subject=${"Staj Başvurusu"}&body=body`
+                );
+              })
+              .catch((err) => console.log(err.message));
+          }
+        });
+      });
+    // db.collection("ilans")
+    //   .doc(ilanId)
+    //   .update(updatedIlan)
+    //   .then(() => setYenile(!yenile))
+    //   .catch((err) => console.log(err.message));
+  };
   return (
     <View style={styles.ilanContainer}>
       <View style={styles.ilanTop}>
@@ -56,9 +99,15 @@ const SingleIlan = ({ ilan }) => {
           )}
         </View>
         {auth.currentUser ? (
-          <Pressable style={styles.basvurButton}>
-            <Text style={styles.basvurButtonText}>Başvur</Text>
-          </Pressable>
+          <>
+            {ilan.basvuranlar.includes(auth.currentUser.email) ? (
+              <Text style={styles.unauthText}>Bu ilana zaten başvurdunuz.</Text>
+            ) : (
+              <Pressable style={styles.basvurButton} onPress={handleBasvur}>
+                <Text style={styles.basvurButtonText}>Başvur</Text>
+              </Pressable>
+            )}
+          </>
         ) : (
           <Text style={styles.unauthText}>
             Başvurmak için kayıt olun ya da giriş yapın
