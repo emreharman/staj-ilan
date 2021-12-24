@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { StyleSheet, View, Text, FlatList } from "react-native";
 import SingleIlan from "./SingleIlan";
+import { MainContext, useContext } from "../context";
 
-import { db } from "../db/firestore3";
+import { db, auth } from "../db/firestore3";
 
-const Listilans = ({ refreshList }) => {
+const Listilans = () => {
   const [ilans, setIlans] = useState([]);
+  const { yenile } = useContext(MainContext);
 
   useEffect(() => {
     getIlans(db);
-  }, [refreshList]);
+    console.log("refreshList:  ");
+  }, [yenile]);
   const getIlans = async (db) => {
     let arr = [];
     const response = db.collection("ilans");
@@ -36,6 +39,7 @@ const Listilans = ({ refreshList }) => {
   return (
     <View style={styles.container}>
       <FlatList
+        showsVerticalScrollIndicator={false}
         data={ilans}
         renderItem={({ item }) => <SingleIlan ilan={item} />}
         style={styles.flatList}

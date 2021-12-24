@@ -12,17 +12,20 @@ import Colors from "../utils/Colors";
 import Error from "./Error";
 import { auth } from "../db/firestore3";
 import { StackActions } from "@react-navigation/native";
+import { MainContext, useContext } from "../context";
 
 const Login = ({ navigation }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const { yenile, setYenile } = useContext(MainContext);
 
   const handleLogin = async () => {
     try {
       if (email !== "" && password !== "") {
         const result = await auth.signInWithEmailAndPassword(email, password);
+        setYenile(!yenile);
         navigation.dispatch(StackActions.push("MyProfile"));
       } else {
         setError(true);

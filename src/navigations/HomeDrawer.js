@@ -3,16 +3,18 @@ import { createDrawerNavigator } from "@react-navigation/drawer";
 import Listilans from "../components/Listilans";
 import IlanEkle from "../components/IlanEkle";
 import { auth } from "../db/firestore3";
+import { MainContext, useContext } from "../context";
 
 const Drawer = createDrawerNavigator();
 
-const HomeDrawer = (props) => {
-  const [refreshList, setRefreshList] = useState(false);
+const HomeDrawer = () => {
+  const { yenile } = useContext(MainContext);
+  useEffect(() => {}, [yenile]);
   return (
     <Drawer.Navigator initialRouteName="İlanları Listele">
       <Drawer.Screen
         name="İlanları Listele"
-        component={() => <Listilans refreshList={refreshList} />}
+        component={Listilans}
         options={{ headerShown: false }}
       />
       {auth.currentUser && (

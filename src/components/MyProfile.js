@@ -4,11 +4,14 @@ import { auth } from "../db/firestore3";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import Colors from "../utils/Colors";
 import { StackActions } from "@react-navigation/native";
+import { MainContext, useContext } from "../context";
 
 const MyProfile = ({ navigation }) => {
+  const { yenile, setYenile } = useContext(MainContext);
   const handleLogout = async () => {
     try {
       await auth.signOut();
+      setYenile(!yenile);
       navigation.dispatch(StackActions.popToTop());
     } catch (error) {
       console.log(error.message);
@@ -17,7 +20,7 @@ const MyProfile = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <Text>My Profile</Text>
-      <Text>{auth.currentUser.email}</Text>
+      <Text>{auth.currentUser ? auth.currentUser.email : null}</Text>
       <Pressable style={styles.logout} onPress={handleLogout}>
         <Ionicons name="log-out-outline" color={Colors.errorText} size={24} />
         <Text style={styles.logoutText}>Çıkış</Text>

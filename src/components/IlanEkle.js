@@ -9,6 +9,7 @@ import {
 } from "react-native";
 import Colors from "../utils/Colors";
 import { db, auth } from "../db/firestore3";
+import { MainContext, useContext } from "../context";
 
 const IlanEkle = ({ navigation }) => {
   const sirketRef = useRef();
@@ -20,8 +21,9 @@ const IlanEkle = ({ navigation }) => {
   const [pozisyonError, setPozisyonError] = useState(false);
   const [aciklama, setAciklama] = useState("");
   const [aciklamaError, setAciklamaError] = useState(false);
+  const { yenile, setYenile } = useContext(MainContext);
 
-  const handleSubmit = ({ refreshList, setRefreshList }) => {
+  const handleSubmit = () => {
     if (sirket === "") {
       sirketRef.current.focus();
       return;
@@ -39,6 +41,7 @@ const IlanEkle = ({ navigation }) => {
       aciklama,
       pozisyon,
       ilanSahibi: auth.currentUser.email,
+      basvuranlar: [],
     };
     db.collection("ilans")
       .add(ilan)
@@ -47,6 +50,7 @@ const IlanEkle = ({ navigation }) => {
         setSirket("");
         setPozisyon("");
         setAciklama("");
+        setYenile(!yenile);
         navigation.navigate("İlanları Listele");
       })
       .catch((error) => console.log(error.message));
